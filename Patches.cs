@@ -15,7 +15,7 @@ namespace NoMatchesMod
         {
             private static void Prefix(LootTable __instance)
             {
-                Implementation.RemoveMatchesFromLootTable(__instance);
+                Implementation.UpdateLootTable(__instance);
             }
         }
 
@@ -24,7 +24,7 @@ namespace NoMatchesMod
         {
             private static void Prefix(LootTable __instance)
             {
-                Implementation.RemoveMatchesFromLootTable(__instance);
+                Implementation.UpdateLootTable(__instance);
             }
         }
     }

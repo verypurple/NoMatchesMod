@@ -33,7 +33,6 @@ namespace NoMatchesMod
         {
             if (obj.transform.childCount > 0)
             {
-
                 for (int i = 0; i < obj.transform.childCount; i++)
                 {
                     GameObject child = obj.transform.GetChild(i).gameObject;
