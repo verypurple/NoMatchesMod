@@ -1,21 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
-using HarmonyLib;
+﻿using HarmonyLib;
 
 namespace NoMatchesMod
 {
     internal class Patches
     {
-        [HarmonyPatch(typeof(LootTable), "GetPrefab")]
-        internal static class LootTable_GetPrefab
+        [HarmonyPatch(typeof(Container), "PopulateWithScriptedGear")]
+        internal static class Container_PopulateWithScriptedGear
         {
-            private static void Prefix(LootTable __instance)
+            private static void Postfix(Container __instance)
             {
-                Implementation.UpdateLootTable(__instance);
+                foreach (var itemName in __instance.m_GearToInstantiate.ToArray())
+                {
+                    if (GearFilter.IsMatch(itemName))
+                    {
+                        __instance.m_GearToInstantiate.Remove(itemName);
+                    }
+                }
             }
         }
 
@@ -24,7 +24,13 @@ namespace NoMatchesMod
         {
             private static void Prefix(LootTable __instance)
             {
-                Implementation.UpdateLootTable(__instance);
+                for (var i = 0; i < __instance.m_Prefabs.Count; i++)
+                {
+                    if (GearFilter.IsMatch(__instance.m_Prefabs[i].name))
+                    {
+                        __instance.m_Weights[i] = 0;
+                    }
+                }
             }
         }
     }
