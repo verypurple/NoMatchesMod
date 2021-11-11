@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using MelonLoader;
 using UnityEngine;
 
-namespace NoMatchesMod
+namespace NoMatches
 {
     internal class Implementation : MelonMod
     {
@@ -24,9 +20,9 @@ namespace NoMatchesMod
 
         internal static void UpdateGearInScene()
         {
-            List<GameObject> rObjs = Utils.GetRootObjects();
+            List<GameObject> rootObjects = Utils.GetRootObjects();
 
-            foreach (GameObject rootObj in rObjs)
+            foreach (GameObject rootObj in rootObjects)
             {
                 List<GameObject> children = new List<GameObject>();
 
@@ -36,85 +32,34 @@ namespace NoMatchesMod
             }
         }
 
-        internal static void UpdateLootTable(LootTable instance)
-        {
-            for (var i = 0; i < instance.m_Prefabs.Count; i++)
-            {
-                var prefab = instance.m_Prefabs[i];
-
-                if ((!Settings.options.matchesAvailable && IsMatches(prefab))
-                    || (!Settings.options.firestrikerAvailable && IsFireStriker(prefab))
-                    || (!Settings.options.magLensAvailable && IsMagnifyingLens(prefab))
-                    || (!Settings.options.flaresAvaliable && IsFlare(prefab)))
-                {
-                    instance.m_Weights[i] = 0;
-                }
-            }
-        }
-
         private static void PatchObjects(List<GameObject> objs)
         {
             foreach (GameObject obj in objs)
             {
-                if (IsMatches(obj))
+                if (GearFilter.IsMatches(obj.name)
+                    || GearFilter.IsFireStriker(obj.name)
+                    || GearFilter.IsMagnifyingLens(obj.name)
+                    || GearFilter.IsFlare(obj.name))
                 {
                     SetVisibility(obj, Settings.options.matchesAvailable);
-                }
-
-                if (IsFireStriker(obj))
-                {
-                    SetVisibility(obj, Settings.options.firestrikerAvailable);
-                }
-
-                if (IsMagnifyingLens(obj))
-                {
-                    SetVisibility(obj, Settings.options.magLensAvailable);
-                }
-
-                if (IsFlare(obj))
-                {
-                    SetVisibility(obj, Settings.options.flaresAvaliable);
                 }
             }
         }
 
-        private static void SetVisibility(GameObject obj, bool visibility)
+        private static void SetVisibility(GameObject obj, bool isVisible)
         {
-            obj.GetComponent<GearItem>().m_NonInteractive = !visibility;
+            obj.GetComponent<GearItem>().m_NonInteractive = !isVisible;
 
-            for (int i = 0; i < obj.transform.childCount; i++)
+            foreach (var component in obj.GetComponentsInChildren<MeshRenderer>(true))
             {
-                GameObject child = obj.transform.GetChild(i).gameObject;
-
-                if (child.name.EndsWith("_Old"))
+                // Skip placeholder assets not used in the game
+                if (component.name.EndsWith("_Old"))
                 {
                     continue;
                 }
 
-                child.active = visibility;
+                component.enabled = isVisible;
             }
-        }
-
-        private static bool IsFlare(GameObject obj)
-        {
-            return obj.name == "GEAR_FlareA"
-                || obj.name == "GEAR_BlueFlare";
-        }
-
-        private static bool IsMagnifyingLens(GameObject obj)
-        {
-            return obj.name == "GEAR_MagnifyingLens";
-        }
-
-        private static bool IsFireStriker(GameObject obj)
-        {
-            return obj.name == "GEAR_Firestriker";
-        }
-
-        internal static bool IsMatches(GameObject obj)
-        {
-            return obj.name == "GEAR_PackMatches" 
-                || obj.name == "GEAR_WoodMatches";
         }
     }
 }

@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ModSettings;
-using UnityEngine;
+﻿using ModSettings;
 
-namespace NoMatchesMod
+namespace NoMatches
 {
     internal class NoMatchesSettings : JsonModSettings
     {
