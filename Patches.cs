@@ -33,5 +33,26 @@ namespace NoMatchesMod
                 }
             }
         }
+
+        [HarmonyPatch(typeof(StartSettings), "SetWeather")]
+        internal static class Test
+        {
+            private static void Postfix(StartSettings __instance)
+            {
+                if (!Settings.options.torchbearerEnabled || GameManager.m_ActiveScene == "MainMenu")
+                {
+                    return;
+                }
+
+                var wind = GameManager.GetWindComponent();
+                wind.StartPhaseImmediate(WindDirection.East, WindStrength.Calm);
+
+                var manager = GameManager.GetPlayerManagerComponent();
+                var torch = manager.InstantiateItemInPlayerInventory("GEAR_Torch");
+                manager.EquipItem(torch, false);
+
+                torch.gameObject.GetComponent<TorchItem>().SetState(TorchState.Burning);
+            }
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using ModSettings;
+﻿using System.Reflection;
+using ModSettings;
 
 namespace NoMatchesMod
 {
@@ -20,12 +21,31 @@ namespace NoMatchesMod
         [Description("Determines if Flares can be found in the world and when searching containers.")]
         public bool flaresAvaliable = true;
 
+        [Name("Torchbearer Mode")]
+        [Description("You start with a lit torch in your hand. It is your only way to make fire. Don't let it go out!")]
+        public bool torchbearerEnabled = false;
+
         protected override void OnConfirm()
         {
             base.OnConfirm();
 
             GearFilter.Update();
             Implementation.UpdateGearInScene();
+        }
+
+        protected override void OnChange(FieldInfo field, object oldValue, object newValue)
+        {
+            base.OnChange(field, oldValue, newValue);
+
+            if (field.Name == nameof(torchbearerEnabled))
+            {
+                matchesAvailable = (bool)oldValue;
+                firestrikerAvailable = (bool)oldValue;
+                magLensAvailable = (bool)oldValue;
+                flaresAvaliable = (bool)oldValue;
+            }
+
+            RefreshGUI();
         }
     }
 
@@ -35,7 +55,7 @@ namespace NoMatchesMod
 
         public static void OnLoad()
         {
-            options.AddToModSettings("No Matches", MenuType.InGameOnly);
+            options.AddToModSettings("No Matches", MenuType.Both);
         }
     }
 }

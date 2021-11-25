@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using MelonLoader;
+﻿using MelonLoader;
 using UnityEngine;
 
 namespace NoMatchesMod
@@ -21,39 +20,21 @@ namespace NoMatchesMod
 
         internal static void UpdateGearInScene()
         {
-            List<GameObject> rootObjects = Utils.GetRootObjects();
+            var roots = UnityEngine.SceneManagement.SceneManager.GetActiveScene().GetRootGameObjects();
 
-            foreach (GameObject rootObj in rootObjects)
+            foreach (var root in roots)
             {
-                List<GameObject> children = new List<GameObject>();
-
-                Utils.GetChildren(rootObj, children);
-
-                PatchObjects(children);
-            }
-        }
-
-        private static void PatchObjects(List<GameObject> objs)
-        {
-            foreach (GameObject obj in objs)
-            {
-                GearItem gearItem = obj.GetComponent<GearItem>();
-
-                if (gearItem)
+                var items = root.GetComponentsInChildren<GearItem>(true);
+                
+                foreach (var item in items)
                 {
-                    bool isMatch = GearFilter.IsMatch(obj.name);
+                    bool isMatch = GearFilter.IsMatch(item.name);
 
-                    gearItem.m_NonInteractive = isMatch;
+                    item.m_NonInteractive = isMatch;
 
-                    foreach (var renderer in obj.GetComponentsInChildren<MeshRenderer>(true))
+                    foreach (var renderer in item.GetComponentsInChildren<MeshRenderer>(true))
                     {
-                        // Skip placeholder assets not used in the game
-                        if (renderer.name.EndsWith("_Old"))
-                        {
-                            continue;
-                        }
-
-                        renderer.enabled = !isMatch;
+                        renderer.forceRenderingOff = isMatch;
                     }
                 }
             }
