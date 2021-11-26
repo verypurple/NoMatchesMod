@@ -1,5 +1,6 @@
 ﻿using MelonLoader;
 using UnityEngine;
+using System.Linq;
 
 namespace NoMatchesMod
 {
@@ -20,22 +21,28 @@ namespace NoMatchesMod
 
         internal static void UpdateGearInScene()
         {
-            var roots = UnityEngine.SceneManagement.SceneManager.GetActiveScene().GetRootGameObjects();
+            var items = UnityEngine.SceneManagement.SceneManager
+                .GetAllScenes()
+                .SelectMany(s => s.GetRootGameObjects())
+                .SelectMany(r => r.GetComponentsInChildren<GearItem>(true))
+                .Where(gi => GearFilter.Has(gi.name));
 
-            foreach (var root in roots)
+            foreach (var item in items)
             {
-                var items = root.GetComponentsInChildren<GearItem>(true);
-                
-                foreach (var item in items)
+                var isAvailable = GearFilter.IsAvailable(item.name);
+
+                item.m_NonInteractive = !isAvailable;
+
+                foreach (var renderer in item.GetComponentsInChildren<MeshRenderer>(true))
                 {
-                    bool isMatch = GearFilter.IsMatch(item.name);
+                    renderer.forceRenderingOff = !isAvailable;
+                }
 
-                    item.m_NonInteractive = isMatch;
+                var lodGroup = item.gameObject.GetComponent<LODGroup>();
 
-                    foreach (var renderer in item.GetComponentsInChildren<MeshRenderer>(true))
-                    {
-                        renderer.forceRenderingOff = isMatch;
-                    }
+                if (lodGroup)
+                {
+                    lodGroup.enabled = !isAvailable;
                 }
             }
         }

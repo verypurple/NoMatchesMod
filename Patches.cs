@@ -11,7 +11,7 @@ namespace NoMatchesMod
             {
                 foreach (var itemName in __instance.m_GearToInstantiate.ToArray())
                 {
-                    if (GearFilter.IsMatch(itemName))
+                    if (GearFilter.Has(itemName) && !GearFilter.IsAvailable(itemName))
                     {
                         __instance.m_GearToInstantiate.Remove(itemName);
                     }
@@ -26,7 +26,9 @@ namespace NoMatchesMod
             {
                 for (var i = 0; i < __instance.m_Prefabs.Count; i++)
                 {
-                    if (GearFilter.IsMatch(__instance.m_Prefabs[i].name))
+                    var itemName = __instance.m_Prefabs[i].name;
+
+                    if (GearFilter.Has(itemName) && !GearFilter.IsAvailable(itemName))
                     {
                         __instance.m_Weights[i] = 0;
                     }
@@ -39,7 +41,7 @@ namespace NoMatchesMod
         {
             private static void Postfix(StartSettings __instance)
             {
-                if (!Settings.options.torchbearerEnabled || GameManager.m_ActiveScene == "MainMenu")
+                if (!Settings.options.torchbearerEnabled || GameManager.IsMainMenuActive())
                 {
                     return;
                 }

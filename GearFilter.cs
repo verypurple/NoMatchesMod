@@ -6,9 +6,14 @@ namespace NoMatchesMod
     {
         internal static Dictionary<string, bool> gearTable;
 
-        internal static bool IsMatch(string gearName)
+        internal static bool Has(string gearName)
         {
-            return gearTable.ContainsKey(gearName) && !gearTable[gearName];
+            return gearTable.ContainsKey(gearName);
+        }
+
+        internal static bool IsAvailable(string gearName)
+        {
+            return gearTable[gearName];
         }
 
         internal static void Update()
